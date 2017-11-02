@@ -122,7 +122,7 @@ inline void Calamity::IllegalInstruction()
 // static 
 inline void Calamity::ThrowStdException()
 {
-	throw std::exception("This is a std::exception.");
+	throw std::exception();
 }
 
 // static 
