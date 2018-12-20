@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <csignal>
+#include <cstdint>
 #include <exception>
 #include <vector>
 
@@ -18,8 +19,7 @@
 class Calamity
 {
 public:
-	static int  DivideByZero();
-	static void Segfault();
+	static void DivideByZero();
 	static void InvalidAccess();
 	static void StackOverflow();
 	static void AssertFalse();
@@ -36,18 +36,12 @@ public:
 };
 
 // static 
-inline int Calamity::DivideByZero()
+inline void Calamity::DivideByZero()
 {
-	int a = 1;
-	int b = 0; 
-	return a / b;
-}
-
-// static
-inline void Calamity::Segfault()
-{
-	int * p = (int*)0x12345678;
-	*p = 0;
+	volatile uint64_t a = 1;
+	volatile uint64_t b = 1;
+	b--;
+	volatile uint64_t c = a / b;
 }
 
 // static
@@ -57,12 +51,17 @@ inline void Calamity::InvalidAccess()
 	*p = 5;
 }
 
+static uint64_t calamity_helper_so(volatile uint64_t & i)
+{
+	if (i < 1) return i;
+	return calamity_helper_so(++i);
+}
+
 // static
 inline void Calamity::StackOverflow()
 {
-	int foo[1000]; //allocate something big on the stack
-	(void)foo;
-	StackOverflow();
+	volatile uint64_t i = 1;
+	calamity_helper_so(i);
 }
 
 // static 
